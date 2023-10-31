@@ -18,11 +18,46 @@ DUCKING = [
     pg.image.load(os.path.join("ex05/Assets/Dino", "DinoDuck1.png")),
     pg.image.load(os.path.join("ex05/Assets/Dino", "DinoDuck2.png")),
 ]
+BIRD = [
+    pg.image.load(os.path.join("ex05/Assets/Bird", "Bird1.png")),
+    pg.image.load(os.path.join("ex05/Assets/Bird", "Bird2.png")),
+]
 
 
 BG = pg.image.load(os.path.join("ex05/Assets/Other", "Track.png"))
 
+# 障害物判定
+class Obstacle:
+    def __init__(self, image, type):
+        self.image = image
+        self.type = type
+        self.rect = self.image[self.type].get_rect()
+        self.rect.x = SCREEN_WIDTH
 
+    def update(self):
+        self.rect.x -= game_speed
+        if self.rect.x < -self.rect.width:
+            obstacles.pop()
+
+    def draw(self, SCREEN):
+        SCREEN.blit(self.image[self.type], self.rect)
+        
+        
+#障害物　鳥
+class Bird(Obstacle):
+    def __init__(self, image):
+        self.type = 0
+        super().__init__(image, self.type)
+        self.rect.y = 250
+        self.index = 0
+
+    def draw(self, SCREEN):
+        if self.index >= 9:
+            self.index = 0
+        SCREEN.blit(self.image[self.index//5], self.rect)
+        self.index += 1
+        
+        
 class Dinosaur:
     X_POS = 80
     Y_POS = 310
@@ -142,14 +177,18 @@ def main():
 
         player.draw(SCREEN)
         player.update(userInput)
+        
+        #鳥　呼び出し
+        if len(obstacles) == 0:
+            if random.randint(0, 2) == 2:
+                obstacles.append(Bird(BIRD))
 
         for obstacle in obstacles:
             obstacle.draw(SCREEN)
             obstacle.update()
             if player.dino_rect.colliderect(obstacle.rect):
                 pg.time.delay(2000)
-                death_count += 1
-                menu(death_count)
+                
 
         background()
 
