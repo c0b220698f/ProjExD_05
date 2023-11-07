@@ -1,6 +1,8 @@
 import sys
 import os
 import random
+import pygame.mixer
+import time
 
 import pygame as pg
 
@@ -18,18 +20,90 @@ DUCKING = [
     pg.image.load(os.path.join("ex05/Assets/Dino", "DinoDuck1.png")),
     pg.image.load(os.path.join("ex05/Assets/Dino", "DinoDuck2.png")),
 ]
-
-SMALL_CACTUS = [pg.image.load(os.path.join("ex05/Assets/Cactus", "SmallCactus1.png")),
-                pg.image.load(os.path.join("ex05/Assets/Cactus", "SmallCactus2.png")),
-                pg.image.load(os.path.join("ex05/Assets/Cactus", "SmallCactus3.png"))]
-LARGE_CACTUS = [pg.image.load(os.path.join("ex05/Assets/Cactus", "LargeCactus1.png")),
-                pg.image.load(os.path.join("ex05/Assets/Cactus", "LargeCactus2.png")),
-                pg.image.load(os.path.join("ex05/Assets/Cactus", "LargeCactus3.png"))]
-
-
+BIRD = [
+    pg.image.load(os.path.join("ex05/Assets/Bird", "Bird1.png")),
+    pg.image.load(os.path.join("ex05/Assets/Bird", "Bird2.png")),
+]
 BG = pg.image.load(os.path.join("ex05/Assets/Other", "Track.png"))
+CLOUD = pg.image.load(os.path.join("ex05/Assets/Other", "Cloud.png"))
 
-#恐竜
+
+# 障害物判定
+class Obstacle:
+    def __init__(self, image, type):
+        self.image = image
+        self.type = type
+        self.rect = self.image[self.type].get_rect()
+        self.rect.x = SCREEN_WIDTH
+
+    def update(self):
+        self.rect.x -= game_speed
+        if self.rect.x < -self.rect.width:
+            obstacles.pop()
+
+    def draw(self, SCREEN):
+        SCREEN.blit(self.image[self.type], self.rect)
+
+
+# 障害物　鳥
+class Bird(Obstacle):
+    def __init__(self, image):
+        self.type = 0
+        super().__init__(image, self.type)
+        self.rect.y = 250
+        self.index = 0
+        self.c = 0
+
+    def draw(self, SCREEN):
+        if self.index >= 9:
+            self.index = 0
+        SCREEN.blit(self.image[self.index // 5], self.rect)
+        self.index += 1
+        if self.c == 0:
+            self.rect.y = random.randint(150, 330)
+            self.c += 1
+
+
+# 雲を作り出す
+class Cloud:
+    def __init__(self):
+        self.x = SCREEN_WIDTH + random.randint(800, 1000)
+        self.y = random.randint(50, 100)
+        self.image = CLOUD
+        self.width = self.image.get_width()
+
+    def update(self):
+        self.x -= game_speed
+        if self.x < -self.width:
+            self.x = SCREEN_WIDTH + random.randint(2500, 3000)
+            self.y = random.randint(50, 100)
+
+    def draw(self, SCREEN):
+        SCREEN.blit(self.image, (self.x, self.y))
+
+
+"""
+サウンドの追加
+
+"""
+#bgmの追加
+def bgm():
+    pg.mixer.init() #初期化
+    bgm = pygame.mixer.Sound("ex05/Assets/music/maou_bgm_8bit14.ogg")
+    bgm.play()
+
+#効果音の追加
+def sound_jump():
+    pg.mixer.init() #初期化
+    bgm_jump = pygame.mixer.Sound("ex05/Assets/music/8bitジャンプ.mp3")
+    bgm_jump.play()
+
+def sound_duck():
+    pg.mixer.init() #初期化
+    bgm_duck = pygame.mixer.Sound("ex05/Assets/music/8bitかわす.mp3")
+    bgm_duck.play()
+
+
 class Dinosaur:
     X_POS = 80
     Y_POS = 310
@@ -82,6 +156,7 @@ class Dinosaur:
         self.dino_rect.x = self.X_POS
         self.dino_rect.y = self.Y_POS_DUCK
         self.step_index += 1
+        sound_duck()
 
     def run(self):
         self.image = self.run_img[self.step_index // 5]
@@ -98,6 +173,7 @@ class Dinosaur:
         if self.jump_vel < -self.JUMP_VEL:
             self.dino_jump = False
             self.jump_vel = self.JUMP_VEL
+        sound_jump()
 
     def draw(self, SCREEN):
         SCREEN.blit(self.image, (self.dino_rect.x, self.dino_rect.y))
@@ -200,6 +276,7 @@ def main():
 
 
 if __name__ == "__main__":
+    bgm()
     pg.init()
     main()
     pg.quit()
