@@ -4,11 +4,11 @@ import random
 
 import pygame as pg
 
-
+#基本設定
 SCREEN_HEIGHT = 600
 SCREEN_WIDTH = 1100
 SCREEN = pg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-
+#画像読み込み
 RUNNING = [
     pg.image.load(os.path.join("ex05/Assets/Dino", "DinoRun1.png")),
     pg.image.load(os.path.join("ex05/Assets/Dino", "DinoRun2.png")),
@@ -18,71 +18,18 @@ DUCKING = [
     pg.image.load(os.path.join("ex05/Assets/Dino", "DinoDuck1.png")),
     pg.image.load(os.path.join("ex05/Assets/Dino", "DinoDuck2.png")),
 ]
-BIRD = [
-    pg.image.load(os.path.join("ex05/Assets/Bird", "Bird1.png")),
-    pg.image.load(os.path.join("ex05/Assets/Bird", "Bird2.png")),
-]
+
+SMALL_CACTUS = [pg.image.load(os.path.join("ex05/Assets/Cactus", "SmallCactus1.png")),
+                pg.image.load(os.path.join("ex05/Assets/Cactus", "SmallCactus2.png")),
+                pg.image.load(os.path.join("ex05/Assets/Cactus", "SmallCactus3.png"))]
+LARGE_CACTUS = [pg.image.load(os.path.join("ex05/Assets/Cactus", "LargeCactus1.png")),
+                pg.image.load(os.path.join("ex05/Assets/Cactus", "LargeCactus2.png")),
+                pg.image.load(os.path.join("ex05/Assets/Cactus", "LargeCactus3.png"))]
 
 
 BG = pg.image.load(os.path.join("ex05/Assets/Other", "Track.png"))
 
-CLOUD = pg.image.load(os.path.join("ex05/Assets/Other", "Cloud.png"))
-
-
-# 障害物判定
-class Obstacle:
-    def __init__(self, image, type):
-        self.image = image
-        self.type = type
-        self.rect = self.image[self.type].get_rect()
-        self.rect.x = SCREEN_WIDTH
-
-    def update(self):
-        self.rect.x -= game_speed
-        if self.rect.x < -self.rect.width:
-            obstacles.pop()
-
-    def draw(self, SCREEN):
-        SCREEN.blit(self.image[self.type], self.rect)
-
-
-# 障害物　鳥
-class Bird(Obstacle):
-    def __init__(self, image):
-        self.type = 0
-        super().__init__(image, self.type)
-        self.rect.y = 250
-        self.index = 0
-        self.c = 0
-
-    def draw(self, SCREEN):
-        if self.index >= 9:
-            self.index = 0
-        SCREEN.blit(self.image[self.index // 5], self.rect)
-        self.index += 1
-        if self.c == 0:
-            self.rect.y = random.randint(150, 330)
-            self.c += 1
-
-
-# 雲を作り出す
-class Cloud:
-    def __init__(self):
-        self.x = SCREEN_WIDTH + random.randint(800, 1000)
-        self.y = random.randint(50, 100)
-        self.image = CLOUD
-        self.width = self.image.get_width()
-
-    def update(self):
-        self.x -= game_speed
-        if self.x < -self.width:
-            self.x = SCREEN_WIDTH + random.randint(2500, 3000)
-            self.y = random.randint(50, 100)
-
-    def draw(self, SCREEN):
-        SCREEN.blit(self.image, (self.x, self.y))
-
-
+#恐竜
 class Dinosaur:
     X_POS = 80
     Y_POS = 310
@@ -155,14 +102,41 @@ class Dinosaur:
     def draw(self, SCREEN):
         SCREEN.blit(self.image, (self.dino_rect.x, self.dino_rect.y))
 
+class Obstacle:
+    def __init__(self, image, type):
+        self.image = image
+        self.type = type
+        self.rect = self.image[self.type].get_rect()
+        self.rect.x = SCREEN_WIDTH
 
+    def update(self):
+        self.rect.x -= game_speed
+        if self.rect.x < -self.rect.width:
+            obstacles.pop()
+
+    def draw(self, SCREEN):
+        SCREEN.blit(self.image[self.type], self.rect)
+
+# 障害物：小さなサボテン
+class SmallCactus(Obstacle):
+    def __init__(self, image):
+        self.type = random.randint(0, 2)
+        super().__init__(image, self.type)
+        self.rect.y = 325
+
+# 障害物：大きなサボテン
+class LargeCactus(Obstacle):
+    def __init__(self, image):
+        self.type = random.randint(0, 2)
+        super().__init__(image, self.type)
+        self.rect.y = 300
+
+#main
 def main():
     global game_speed, x_pos_bg, y_pos_bg, points, obstacles
     run = True
     clock = pg.time.Clock()
     player = Dinosaur()
-    # 雲
-    cloud = Cloud()
     game_speed = 20
     x_pos_bg = 0
     y_pos_bg = 380
@@ -173,15 +147,12 @@ def main():
     pg.display.set_caption("恐竜ゲーム")
 
     def score():
-        """
-        スコアを表示する関数
-        """
         global points, game_speed
-        points += 0.1  # スコアを0.1ずつ加算する
+        points += 1
         if points % 100 == 0:
-            game_speed += 1  # スコアを100ごとにゲームスピードを速くする
+            game_speed += 1
 
-        text = font.render(f"ScorePoint:{points:.0f}", True, (0, 0, 0))
+        text = font.render("Points: " + str(points), True, (0, 0, 0))
         textRect = text.get_rect()
         textRect.center = (1000, 40)
         SCREEN.blit(text, textRect)
@@ -208,10 +179,13 @@ def main():
         player.draw(SCREEN)
         player.update(userInput)
 
-        # 鳥　呼び出し
         if len(obstacles) == 0:
-            if random.randint(0, 2) == 2:
-                obstacles.append(Bird(BIRD))
+            if random.randint(0, 2) == 0:
+                obstacles.append(SmallCactus(SMALL_CACTUS))
+            elif random.randint(0, 2) == 1:
+                obstacles.append(LargeCactus(LARGE_CACTUS))
+        
+
 
         for obstacle in obstacles:
             obstacle.draw(SCREEN)
@@ -220,10 +194,7 @@ def main():
                 pg.time.delay(2000)
 
         background()
-        # 雲の発生
-        cloud.draw(SCREEN)
-        cloud.update()
-        score()
+
         clock.tick(30)
         pg.display.update()
 
