@@ -22,6 +22,8 @@ DUCKING = [
 
 BG = pg.image.load(os.path.join("ex05/Assets/Other", "Track.png"))
 
+CLOUD = pg.image.load(os.path.join("Assets/Other", "Cloud.png"))
+
 
 class Dinosaur:
     X_POS = 80
@@ -94,6 +96,23 @@ class Dinosaur:
 
     def draw(self, SCREEN):
         SCREEN.blit(self.image, (self.dino_rect.x, self.dino_rect.y))
+        
+# 雲を作り出す
+class Cloud:
+     def __init__(self):
+         self.x = SCREEN_WIDTH + random.randint(800, 1000)
+         self.y = random.randint(50, 100)
+         self.image = CLOUD
+         self.width = self.image.get_width()
+
+     def update(self):
+         self.x -= game_speed
+         if self.x < -self.width:
+             self.x = SCREEN_WIDTH + random.randint(2500, 3000)
+             self.y = random.randint(50, 100)
+
+     def draw(self, SCREEN):
+         SCREEN.blit(self.image, (self.x, self.y))
 
 
 def main():
@@ -101,6 +120,8 @@ def main():
     run = True
     clock = pg.time.Clock()
     player = Dinosaur()
+    # 雲
+    cloud = Cloud()
     game_speed = 20
     x_pos_bg = 0
     y_pos_bg = 380
@@ -149,9 +170,12 @@ def main():
             if player.dino_rect.colliderect(obstacle.rect):
                 pg.time.delay(2000)
                 death_count += 1
-                menu(death_count)
 
         background()
+        
+        # 雲の発生
+        cloud.draw(SCREEN)
+        cloud.update()
 
         clock.tick(30)
         pg.display.update()

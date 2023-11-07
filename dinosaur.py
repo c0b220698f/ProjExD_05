@@ -131,6 +131,8 @@ def main():
     run = True
     clock = pg.time.Clock()
     player = Dinosaur()
+    # 雲
+    cloud = Cloud()
     game_speed = 20
     x_pos_bg = 0
     y_pos_bg = 380
@@ -141,12 +143,15 @@ def main():
     pg.display.set_caption("恐竜ゲーム")
 
     def score():
+        """
+        スコアを表示する関数
+        """
         global points, game_speed
-        points += 1
+        points += 0.1  # スコアを0.1ずつ加算する
         if points % 100 == 0:
-            game_speed += 1
+            game_speed += 1  # スコアを100ごとにゲームスピードを速くする
 
-        text = font.render("Points: " + str(points), True, (0, 0, 0))
+        text = font.render(f"ScorePoint:{points:.0f}", True, (0, 0, 0))
         textRect = text.get_rect()
         textRect.center = (1000, 40)
         SCREEN.blit(text, textRect)
@@ -161,7 +166,6 @@ def main():
             x_pos_bg = 0
         x_pos_bg -= game_speed
 
-
     while run:
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -174,15 +178,22 @@ def main():
         player.draw(SCREEN)
         player.update(userInput)
 
+        # 鳥　呼び出し
+        if len(obstacles) == 0:
+            if random.randint(0, 2) == 2:
+                obstacles.append(Bird(BIRD))
+
         for obstacle in obstacles:
             obstacle.draw(SCREEN)
             obstacle.update()
             if player.dino_rect.colliderect(obstacle.rect):
                 pg.time.delay(2000)
-                death_count += 1
-                #menu(death_count)
 
         background()
+        # 雲の発生
+        cloud.draw(SCREEN)
+        cloud.update()
+        score()
         clock.tick(30)
         pg.display.update()
 
