@@ -107,16 +107,18 @@ def main():
     points = 0
     font = pg.font.Font("freesansbold.ttf", 20)
     obstacles = []
-    death_count = 0
     pg.display.set_caption("恐竜ゲーム")
 
     def score():
+        """
+        スコアを表示する関数
+        """
         global points, game_speed
-        points += 1
+        points += 0.1  # スコアを0.1ずつ加算する
         if points % 100 == 0:
-            game_speed += 1
+            game_speed += 1  # スコアを100ごとにゲームスピードを速くする
 
-        text = font.render("Points: " + str(points), True, (0, 0, 0))
+        text = font.render(f"ScorePoint:{points:.0f}", True, (0, 0, 0))
         textRect = text.get_rect()
         textRect.center = (1000, 40)
         SCREEN.blit(text, textRect)
@@ -148,11 +150,9 @@ def main():
             obstacle.update()
             if player.dino_rect.colliderect(obstacle.rect):
                 pg.time.delay(2000)
-                death_count += 1
-                menu(death_count)
 
         background()
-
+        score()
         clock.tick(30)
         pg.display.update()
 
