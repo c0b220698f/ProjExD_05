@@ -20,10 +20,66 @@ DUCKING = [
     pg.image.load(os.path.join("ex05/Assets/Dino", "DinoDuck1.png")),
     pg.image.load(os.path.join("ex05/Assets/Dino", "DinoDuck2.png")),
 ]
-
-
+BIRD = [
+    pg.image.load(os.path.join("ex05/Assets/Bird", "Bird1.png")),
+    pg.image.load(os.path.join("ex05/Assets/Bird", "Bird2.png")),
+]
 BG = pg.image.load(os.path.join("ex05/Assets/Other", "Track.png"))
+CLOUD = pg.image.load(os.path.join("ex05/Assets/Other", "Cloud.png"))
 
+
+# 障害物判定
+class Obstacle:
+    def __init__(self, image, type):
+        self.image = image
+        self.type = type
+        self.rect = self.image[self.type].get_rect()
+        self.rect.x = SCREEN_WIDTH
+
+    def update(self):
+        self.rect.x -= game_speed
+        if self.rect.x < -self.rect.width:
+            obstacles.pop()
+
+    def draw(self, SCREEN):
+        SCREEN.blit(self.image[self.type], self.rect)
+
+
+# 障害物　鳥
+class Bird(Obstacle):
+    def __init__(self, image):
+        self.type = 0
+        super().__init__(image, self.type)
+        self.rect.y = 250
+        self.index = 0
+        self.c = 0
+
+    def draw(self, SCREEN):
+        if self.index >= 9:
+            self.index = 0
+        SCREEN.blit(self.image[self.index // 5], self.rect)
+        self.index += 1
+        if self.c == 0:
+            self.rect.y = random.randint(150, 330)
+            self.c += 1
+
+
+# 雲を作り出す
+class Cloud:
+    def __init__(self):
+        self.x = SCREEN_WIDTH + random.randint(800, 1000)
+        self.y = random.randint(50, 100)
+        self.image = CLOUD
+        self.width = self.image.get_width()
+
+    def update(self):
+        self.x -= game_speed
+        if self.x < -self.width:
+            self.x = SCREEN_WIDTH + random.randint(2500, 3000)
+            self.y = random.randint(50, 100)
+
+    def draw(self, SCREEN):
+        SCREEN.blit(self.image, (self.x, self.y))
 
 
 """
@@ -46,7 +102,6 @@ def sound_duck():
     pg.mixer.init() #初期化
     bgm_duck = pygame.mixer.Sound("ex05/Assets/music/8bitかわす.mp3")
     bgm_duck.play()
-
 
 
 class Dinosaur:
