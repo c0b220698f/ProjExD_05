@@ -50,12 +50,20 @@ class Bird(Obstacle):
         super().__init__(image, self.type)
         self.rect.y = 250
         self.index = 0
+        self.c=0
 
     def draw(self, SCREEN):
         if self.index >= 9:
             self.index = 0
         SCREEN.blit(self.image[self.index//5], self.rect)
         self.index += 1
+        if self.c==0:
+            self.rect.y = random.randint(150,330)
+            self.c+=1
+        
+        
+        
+        
         
         
 class Dinosaur:
@@ -166,7 +174,7 @@ def main():
             x_pos_bg = 0
         x_pos_bg -= game_speed
 
-    while run:
+    while run: 
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 run = False
@@ -188,6 +196,8 @@ def main():
             obstacle.update()
             if player.dino_rect.colliderect(obstacle.rect):
                 pg.time.delay(2000)
+                
+        
                 
 
         background()
