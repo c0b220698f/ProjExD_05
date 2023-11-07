@@ -26,7 +26,8 @@ BIRD = [
 
 BG = pg.image.load(os.path.join("ex05/Assets/Other", "Track.png"))
 
-CLOUD = pg.image.load(os.path.join("Assets/Other", "Cloud.png"))
+CLOUD = pg.image.load(os.path.join("ex05/Assets/Other", "Cloud.png"))
+
 
 # 障害物判定
 class Obstacle:
@@ -43,48 +44,45 @@ class Obstacle:
 
     def draw(self, SCREEN):
         SCREEN.blit(self.image[self.type], self.rect)
-        
-        
-#障害物　鳥
+
+
+# 障害物　鳥
 class Bird(Obstacle):
     def __init__(self, image):
         self.type = 0
         super().__init__(image, self.type)
         self.rect.y = 250
         self.index = 0
-        self.c=0
+        self.c = 0
 
     def draw(self, SCREEN):
         if self.index >= 9:
             self.index = 0
-        SCREEN.blit(self.image[self.index//5], self.rect)
+        SCREEN.blit(self.image[self.index // 5], self.rect)
         self.index += 1
-        if self.c==0:
-            self.rect.y = random.randint(150,330)
-            self.c+=1
-            
+        if self.c == 0:
+            self.rect.y = random.randint(150, 330)
+            self.c += 1
+
+
 # 雲を作り出す
 class Cloud:
-     def __init__(self):
-         self.x = SCREEN_WIDTH + random.randint(800, 1000)
-         self.y = random.randint(50, 100)
-         self.image = CLOUD
-         self.width = self.image.get_width()
+    def __init__(self):
+        self.x = SCREEN_WIDTH + random.randint(800, 1000)
+        self.y = random.randint(50, 100)
+        self.image = CLOUD
+        self.width = self.image.get_width()
 
-     def update(self):
-         self.x -= game_speed
-         if self.x < -self.width:
-             self.x = SCREEN_WIDTH + random.randint(2500, 3000)
-             self.y = random.randint(50, 100)
+    def update(self):
+        self.x -= game_speed
+        if self.x < -self.width:
+            self.x = SCREEN_WIDTH + random.randint(2500, 3000)
+            self.y = random.randint(50, 100)
 
-     def draw(self, SCREEN):
-         SCREEN.blit(self.image, (self.x, self.y))
-        
-        
-        
-        
-        
-        
+    def draw(self, SCREEN):
+        SCREEN.blit(self.image, (self.x, self.y))
+
+
 class Dinosaur:
     X_POS = 80
     Y_POS = 310
@@ -175,12 +173,15 @@ def main():
     pg.display.set_caption("恐竜ゲーム")
 
     def score():
+        """
+        スコアを表示する関数
+        """
         global points, game_speed
-        points += 1
+        points += 0.1  # スコアを0.1ずつ加算する
         if points % 100 == 0:
-            game_speed += 1
+            game_speed += 1  # スコアを100ごとにゲームスピードを速くする
 
-        text = font.render("Points: " + str(points), True, (0, 0, 0))
+        text = font.render(f"ScorePoint:{points:.0f}", True, (0, 0, 0))
         textRect = text.get_rect()
         textRect.center = (1000, 40)
         SCREEN.blit(text, textRect)
@@ -195,7 +196,7 @@ def main():
             x_pos_bg = 0
         x_pos_bg -= game_speed
 
-    while run: 
+    while run:
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 run = False
@@ -206,8 +207,8 @@ def main():
 
         player.draw(SCREEN)
         player.update(userInput)
-        
-        #鳥　呼び出し
+
+        # 鳥　呼び出し
         if len(obstacles) == 0:
             if random.randint(0, 2) == 2:
                 obstacles.append(Bird(BIRD))
@@ -217,15 +218,12 @@ def main():
             obstacle.update()
             if player.dino_rect.colliderect(obstacle.rect):
                 pg.time.delay(2000)
-                
-        
-                
 
         background()
         # 雲の発生
         cloud.draw(SCREEN)
         cloud.update()
-
+        score()
         clock.tick(30)
         pg.display.update()
 
