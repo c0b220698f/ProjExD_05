@@ -110,10 +110,13 @@ def main():
     pg.display.set_caption("恐竜ゲーム")
 
     def score():
+        """
+        スコアを表示する関数
+        """
         global points, game_speed
-        points += 0.1
+        points += 0.1  # スコアを0.1ずつ加算する
         if points % 100 == 0:
-            game_speed += 1
+            game_speed += 1  # スコアを100ごとにゲームスピードを速くする
 
         text = font.render(f"ScorePoint:{points:.0f}", True, (0, 0, 0))
         textRect = text.get_rect()
