@@ -276,6 +276,7 @@ def main():
             obstacle.update()
             if player.dino_rect.colliderect(obstacle.rect):
                 pg.time.delay(2000)
+                sys.exit()
 
         background()
         # 雲の発生
